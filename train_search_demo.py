@@ -1,9 +1,9 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
-# $File: train_verify_demo.py
+# $File: train_search_demo.py
 
-# This demo shows you how to use Face++ API:/train/verify.
-# 本示例展示如何使用/train/verify接口
+# This demo shows you how to use Face++ API:/train/search.
+# 本示例展示如何使用/train/search接口
 
 # You need to register your App first, and enter you API key/secret.
 # 您需要先注册一个App, 并将得到的API key和API secret写在这里.
@@ -13,6 +13,7 @@ API_SECRET = 'vBEvvSdshCbdt3IiMKIem6NwxQ1NCHTv'
 
 # Import system libraries and define helper functions
 # 导入系统库并定义辅助函数
+
 import time
 from pprint import pformat
 
@@ -32,34 +33,24 @@ def print_result(hint, result):
 
 # First import the API class from the SDK
 # 首先, 导入SDK中的API类
+
 import facepp
 
 api = facepp.API(API_KEY, API_SECRET)
 
-# Here is the person's face image
-# 人脸部图片
-IMAGE = './1.jpg'
+face1 = api.detection.detect(img=facepp.File('./1.jpg'))
+face2 = api.detection.detect(img=facepp.File('./2.jpg'))
 
-# Detect face in the pictures and find out their position and attributes
-# 检测出输入图片中的faces, 找出图片中faces的位置及属性
-face = api.detection.detect(img=facepp.File(IMAGE),
-                            mode='oneface')
+faceset = api.faceset.create(api_key=API_KEY, api_secret=API_SECRET,
+                             face_id=face1['face'][0]['face_id'] + ',' + face2['face'][0]['face_id'])
 
-# Get the face_id
-# 获取face_id
-face_id = face['face'][0]['face_id']
+print_result('Faceset info:', faceset)
 
-person = api.person.create(api_key = API_KEY, api_secret = API_SECRET,
-                           face_id = face_id)
+res = api.train.search(api_key=API_KEY, api_secret=API_SECRET,
+                       faceset_name=faceset['faceset_name'])
 
-print_result("Person created:", person)
-
-res = api.train.verify(api_key=API_KEY, api_secret=API_SECRET, person_name=person['person_name'])
-
-print("session_id:", res['session_id'])
-
+print_result('After trained:', res)
 time.sleep(5)
+res2 = api.info.get_session(api_key=API_KEY, api_secret=API_SECRET, session_id=res['session_id'])
 
-res = api.info.get_session(api_key=API_KEY, api_secret=API_SECRET, session_id=res['session_id'])
-
-print_result("Train res:", res)
+print_result('Trained result:', res2)
