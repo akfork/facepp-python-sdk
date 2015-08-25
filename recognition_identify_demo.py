@@ -60,6 +60,9 @@ res = api.train.identify(api_key=API_KEY, api_secret=API_SECRET, group_name=grou
 time.sleep(5)
 
 res2 = api.recognition.identify(api_key=API_KEY, api_secret=API_SECRET, group_id=group['group_id'],
-                                img=facepp.File('4.jpg'))
+                                # img=facepp.File('4.jpg')
+                                url='http://www.faceplusplus.com.cn//static/resources/python_demo/4.jpg'
+                                , mode='oneface'
+                                )
 
 print_result('Identify res:', res2)
